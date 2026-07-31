@@ -1,0 +1,15 @@
+# Unreal build and cache output
+Binaries/
+DerivedDataCache/
+Intermediate/
+Saved/
+.vs/
+.vscode/
+*.xcworkspace/
+*.xcodeproj/
+*.sln
+
+# The generated materials and level are rebuilt by Tools/generate_assets.py.
+# Delete the next two lines if you would rather commit them.
+Content/Materials/
+Content/Maps/
