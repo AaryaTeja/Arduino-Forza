@@ -1,0 +1,330 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#07090d" />
+<title>Apex Horizon</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='26'>🏁</text></svg>" />
+<link rel="stylesheet" href="/src/style.css" />
+</head>
+<body>
+  <canvas id="viewport"></canvas>
+
+  <!-- ══════════ BOOT / LOADING ══════════ -->
+  <div id="boot" class="screen active">
+    <div class="boot-inner">
+      <div class="logo">
+        <span class="logo-mark">APEX</span><span class="logo-sub">HORIZON</span>
+      </div>
+      <div class="load-bar"><i id="load-fill"></i></div>
+      <div id="load-label" class="load-label">Initialising…</div>
+      <div id="load-tip" class="load-tip"></div>
+    </div>
+  </div>
+
+  <!-- ══════════ MAIN MENU ══════════ -->
+  <div id="menu-main" class="screen">
+    <div class="menu-bg-grade"></div>
+    <div class="menu-wrap">
+      <div class="menu-head">
+        <div class="logo small"><span class="logo-mark">APEX</span><span class="logo-sub">HORIZON</span></div>
+        <div class="credits-chip">
+          <svg viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M15 9.5a3.5 3.5 0 1 0 0 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          <span id="credits-value">0</span>
+        </div>
+      </div>
+      <nav class="menu-list" id="main-nav">
+        <button class="menu-item" data-action="freeroam">
+          <span class="mi-title">Free Roam</span>
+          <span class="mi-desc">Explore the open world at your own pace</span>
+        </button>
+        <button class="menu-item" data-action="race">
+          <span class="mi-title">Race Event</span>
+          <span class="mi-desc">Circuit sprint against six rivals</span>
+        </button>
+        <button class="menu-item" data-action="timetrial">
+          <span class="mi-title">Time Trial</span>
+          <span class="mi-desc">Solo laps — chase the clock</span>
+        </button>
+        <button class="menu-item" data-action="garage">
+          <span class="mi-title">Garage</span>
+          <span class="mi-desc">Cars, paint, wheels, tuning &amp; upgrades</span>
+        </button>
+        <button class="menu-item" data-action="settings">
+          <span class="mi-title">Settings</span>
+          <span class="mi-desc">Graphics, audio, world &amp; controls</span>
+        </button>
+        <button class="menu-item" data-action="quit">
+          <span class="mi-title">Exit</span>
+          <span class="mi-desc">Shut down the session</span>
+        </button>
+      </nav>
+      <div class="menu-foot">
+        <span class="kbd">↑↓</span> navigate <span class="kbd">Enter</span> select <span class="kbd">Esc</span> back
+        <span class="sep">•</span> <span id="pad-status">No controller</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ EVENT SETUP ══════════ -->
+  <div id="menu-event" class="screen">
+    <div class="panel wide">
+      <header class="panel-head">
+        <h2 id="event-title">Race Event</h2>
+        <button class="btn ghost" data-nav="menu-main">Back</button>
+      </header>
+      <div class="event-grid">
+        <label class="field"><span>Laps</span>
+          <div class="stepper"><button data-step="laps:-1">−</button><b id="opt-laps">3</b><button data-step="laps:1">+</button></div>
+        </label>
+        <label class="field"><span>Opponents</span>
+          <div class="stepper"><button data-step="rivals:-1">−</button><b id="opt-rivals">6</b><button data-step="rivals:1">+</button></div>
+        </label>
+        <label class="field"><span>AI Difficulty</span>
+          <div class="segmented" id="opt-difficulty">
+            <button data-val="0.86">Rookie</button><button data-val="0.93">Pro</button>
+            <button class="on" data-val="0.985">Expert</button><button data-val="1.04">Legend</button>
+          </div>
+        </label>
+        <label class="field"><span>Time of Day</span>
+          <div class="segmented" id="opt-tod">
+            <button data-val="6.4">Dawn</button><button class="on" data-val="13">Noon</button>
+            <button data-val="17.7">Sunset</button><button data-val="22">Night</button>
+          </div>
+        </label>
+        <label class="field"><span>Weather</span>
+          <div class="segmented" id="opt-weather">
+            <button class="on" data-val="clear">Clear</button><button data-val="overcast">Overcast</button>
+            <button data-val="rain">Rain</button><button data-val="fog">Fog</button>
+          </div>
+        </label>
+        <label class="field"><span>Dynamic time</span>
+          <div class="segmented" id="opt-dyntime">
+            <button class="on" data-val="0">Off</button><button data-val="1">Slow</button><button data-val="4">Fast</button>
+          </div>
+        </label>
+      </div>
+      <footer class="panel-foot">
+        <button class="btn ghost" data-nav="menu-garage">Change Car</button>
+        <button class="btn primary" id="event-start">Start</button>
+      </footer>
+    </div>
+  </div>
+
+  <!-- ══════════ GARAGE ══════════ -->
+  <div id="menu-garage" class="screen garage">
+    <div class="garage-top">
+      <button class="btn ghost" data-nav="menu-main">◀ Menu</button>
+      <div class="garage-title"><h2 id="car-name">—</h2><span id="car-class">—</span></div>
+      <div class="credits-chip"><svg viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M15 9.5a3.5 3.5 0 1 0 0 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span id="credits-value-2">0</span></div>
+    </div>
+
+    <div class="garage-body">
+      <aside class="car-rail" id="car-rail"></aside>
+
+      <div class="garage-spacer"></div>
+
+      <aside class="garage-panel">
+        <div class="tabs" id="garage-tabs">
+          <button class="on" data-tab="stats">Stats</button>
+          <button data-tab="paint">Paint</button>
+          <button data-tab="wheels">Wheels</button>
+          <button data-tab="tune">Tune</button>
+          <button data-tab="upgrade">Upgrades</button>
+        </div>
+
+        <div class="tab-body" data-tabbody="stats">
+          <div id="stat-bars"></div>
+          <p class="blurb" id="car-blurb"></p>
+        </div>
+
+        <div class="tab-body hidden" data-tabbody="paint">
+          <div class="sub">Body colour</div>
+          <div class="swatches" id="paint-swatches"></div>
+          <label class="row"><span>Custom</span><input type="color" id="paint-custom" value="#c8102e" /></label>
+          <div class="sub">Finish</div>
+          <div class="segmented" id="paint-finish">
+            <button class="on" data-val="gloss">Gloss</button><button data-val="metallic">Metallic</button>
+            <button data-val="matte">Matte</button><button data-val="pearl">Pearl</button>
+          </div>
+          <div class="sub">Racing stripes</div>
+          <div class="segmented" id="paint-stripe">
+            <button class="on" data-val="none">None</button><button data-val="dual">Dual</button><button data-val="centre">Centre</button>
+          </div>
+          <label class="row"><span>Stripe colour</span><input type="color" id="stripe-colour" value="#f2f4f8" /></label>
+        </div>
+
+        <div class="tab-body hidden" data-tabbody="wheels">
+          <div class="sub">Rim style</div>
+          <div class="segmented tall" id="wheel-style">
+            <button class="on" data-val="0">Mesh</button><button data-val="1">5-Spoke</button>
+            <button data-val="2">Turbofan</button><button data-val="3">Split-6</button>
+          </div>
+          <label class="row"><span>Rim colour</span><input type="color" id="rim-colour" value="#d6dae2" /></label>
+          <div class="sub">Brake calipers</div>
+          <label class="row"><span>Caliper colour</span><input type="color" id="caliper-colour" value="#e03a1a" /></label>
+          <div class="sub">Tyre compound</div>
+          <div class="segmented" id="tyre-compound">
+            <button data-val="street">Street</button><button class="on" data-val="sport">Sport</button>
+            <button data-val="race">Race</button><button data-val="rally">Rally</button>
+          </div>
+          <p class="hint" id="tyre-hint"></p>
+        </div>
+
+        <div class="tab-body hidden" data-tabbody="tune">
+          <div id="tune-sliders"></div>
+          <button class="btn ghost sm" id="tune-reset">Reset to default</button>
+        </div>
+
+        <div class="tab-body hidden" data-tabbody="upgrade">
+          <div id="upgrade-list"></div>
+        </div>
+      </aside>
+    </div>
+
+    <div class="garage-foot">
+      <div class="perf-readout" id="perf-readout"></div>
+      <div class="grow"></div>
+      <button class="btn ghost" id="garage-buy">Purchase</button>
+      <button class="btn primary" id="garage-drive">Drive</button>
+    </div>
+  </div>
+
+  <!-- ══════════ SETTINGS ══════════ -->
+  <div id="menu-settings" class="screen">
+    <div class="panel wide">
+      <header class="panel-head">
+        <h2>Settings</h2>
+        <button class="btn ghost" data-nav="menu-main">Back</button>
+      </header>
+      <div class="tabs" id="settings-tabs">
+        <button class="on" data-tab="graphics">Graphics</button>
+        <button data-tab="audio">Audio</button>
+        <button data-tab="gameplay">Gameplay</button>
+        <button data-tab="controls">Controls</button>
+      </div>
+      <div class="settings-scroll">
+        <div class="tab-body" data-tabbody="graphics" id="set-graphics"></div>
+        <div class="tab-body hidden" data-tabbody="audio" id="set-audio"></div>
+        <div class="tab-body hidden" data-tabbody="gameplay" id="set-gameplay"></div>
+        <div class="tab-body hidden" data-tabbody="controls" id="set-controls"></div>
+      </div>
+      <footer class="panel-foot">
+        <button class="btn ghost" id="settings-defaults">Restore defaults</button>
+        <button class="btn primary" data-nav="menu-main">Done</button>
+      </footer>
+    </div>
+  </div>
+
+  <!-- ══════════ HUD ══════════ -->
+  <div id="hud" class="hud hidden">
+    <!-- top-left: race info -->
+    <div class="hud-tl">
+      <div class="race-badges">
+        <div class="badge" id="hud-pos-wrap"><em>POS</em><b id="hud-pos">1/7</b></div>
+        <div class="badge" id="hud-lap-wrap"><em>LAP</em><b id="hud-lap">1/3</b></div>
+      </div>
+      <div class="timers">
+        <div class="t-row"><em>TIME</em><b id="hud-time">0:00.000</b></div>
+        <div class="t-row small"><em>LAST</em><b id="hud-last">—</b></div>
+        <div class="t-row small"><em>BEST</em><b id="hud-best">—</b></div>
+        <div class="t-row small delta" id="hud-delta-row"><em>Δ</em><b id="hud-delta">—</b></div>
+      </div>
+    </div>
+
+    <!-- top-right: standings -->
+    <div class="hud-tr">
+      <div class="standings" id="hud-standings"></div>
+    </div>
+
+    <!-- centre banners -->
+    <div class="hud-centre">
+      <div id="countdown" class="countdown hidden"></div>
+      <div id="banner" class="banner hidden"></div>
+      <div id="checkpoint-pop" class="cp-pop hidden"></div>
+    </div>
+
+    <!-- bottom-left: minimap -->
+    <div class="hud-bl">
+      <canvas id="minimap" width="260" height="260"></canvas>
+      <div class="minimap-ring"></div>
+    </div>
+
+    <!-- bottom-centre: gear + assists -->
+    <div class="hud-bc">
+      <div class="assist-pips" id="assist-pips"></div>
+    </div>
+
+    <!-- bottom-right: speedo cluster -->
+    <div class="hud-br">
+      <div class="cluster">
+        <canvas id="tacho" width="360" height="360"></canvas>
+        <div class="cluster-digits">
+          <b id="speed-value">0</b><em id="speed-unit">km/h</em>
+        </div>
+        <div class="cluster-gear"><span id="gear-value">N</span></div>
+      </div>
+      <div class="damage-widget">
+        <div class="dmg-title">DAMAGE</div>
+        <svg viewBox="0 0 60 100" class="dmg-car">
+          <path id="dmg-front" d="M12 6 h36 a6 6 0 0 1 6 6 v14 h-48 v-14 a6 6 0 0 1 6 -6 z"/>
+          <path id="dmg-left"  d="M6 28 h16 v44 h-16 z"/>
+          <path id="dmg-right" d="M38 28 h16 v44 h-16 z"/>
+          <path id="dmg-rear"  d="M6 74 h48 v14 a6 6 0 0 1 -6 6 h-36 a6 6 0 0 1 -6 -6 z"/>
+          <rect x="24" y="30" width="12" height="40" rx="3" id="dmg-core"/>
+        </svg>
+        <div class="dmg-pct"><span id="dmg-value">0</span>%</div>
+      </div>
+    </div>
+
+    <!-- free-roam hint -->
+    <div class="hud-hint" id="hud-hint"></div>
+  </div>
+
+  <!-- ══════════ PAUSE ══════════ -->
+  <div id="menu-pause" class="screen overlay">
+    <div class="panel narrow">
+      <header class="panel-head"><h2>Paused</h2></header>
+      <nav class="menu-list compact" id="pause-nav">
+        <button class="menu-item" data-action="resume"><span class="mi-title">Resume</span></button>
+        <button class="menu-item" data-action="restart"><span class="mi-title">Restart Event</span></button>
+        <button class="menu-item" data-action="respawn"><span class="mi-title">Reset Car to Track</span></button>
+        <button class="menu-item" data-action="settings"><span class="mi-title">Settings</span></button>
+        <button class="menu-item" data-action="garage"><span class="mi-title">Garage</span></button>
+        <button class="menu-item" data-action="quitmain"><span class="mi-title">Quit to Main Menu</span></button>
+      </nav>
+    </div>
+  </div>
+
+  <!-- ══════════ RESULTS ══════════ -->
+  <div id="menu-results" class="screen overlay">
+    <div class="panel wide">
+      <header class="panel-head">
+        <h2 id="results-title">Race Complete</h2>
+        <div id="results-reward" class="reward"></div>
+      </header>
+      <div class="results-table" id="results-table"></div>
+      <div class="results-splits" id="results-splits"></div>
+      <footer class="panel-foot">
+        <button class="btn ghost" id="results-menu">Main Menu</button>
+        <button class="btn ghost" id="results-roam">Free Roam</button>
+        <button class="btn primary" id="results-restart">Race Again</button>
+      </footer>
+    </div>
+  </div>
+
+  <!-- ══════════ EXIT ══════════ -->
+  <div id="menu-exit" class="screen overlay">
+    <div class="panel narrow center">
+      <h2>Session ended</h2>
+      <p class="blurb">Thanks for driving. Progress has been saved locally.</p>
+      <button class="btn primary" id="exit-relaunch">Relaunch</button>
+    </div>
+  </div>
+
+  <div id="toast-stack" class="toast-stack"></div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
