@@ -4,4 +4,4 @@ This is a fan-made project, and if any, all copyrights goes to Playground Games.
 This game is NOT made for personal financial gain.
 
 
-The folder "AaryaTeja-Arduino-Forza-a10cf89/Forza-Remake" is the one Cole made that supports Arduino
+The folder "AaryaTeja-Arduino-Forza-a10cf89/Forza-Remake" is the one Cole made that supports Arduino--Currently not working
